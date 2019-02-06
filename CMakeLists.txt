@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-SET (projectid Tst)
+SET (projectid OdbcGen)
 Project(${projectid} C CXX)
 set(CMAKE_BUILD_TYPE "Debug")
 set(CMAKE_CXX_FLAGS "-std=c++17 -Dname=__SqlServer__")
