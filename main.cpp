@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "ootabe.h"
 #define	dtab	"\t"
 #define	dnew	"\n"
 #define	dbsra	"\\"
@@ -549,7 +548,6 @@ int main(int argc, char** argv) {
 	for (int i = 0;;i++) {
 		retcode = _sql->CSQLFetch(_hstmt);
 		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-			printf("Result is: %s\n", (char*)TABLE_NAME);
 			sprintf((char*)pchar,"%s",(char*)TABLE_NAME);
 			std::string tbl = (char*)TABLE_NAME;
 			_tbl.push_back(tbl);
@@ -765,6 +763,7 @@ int main(int argc, char** argv) {
 					wk_NAME = str_NAME;
 				}
 				std::string column = (char*)COLUMN_NAME;
+				idx.CONSTRAINT_NAME = str_NAME;
 				idx.COLUMN_NAME = column;
 				columns.push_back(column);
 				IndexColumns.push_back(idx);
@@ -791,6 +790,17 @@ int main(int argc, char** argv) {
 		outputfile << dtab << "}" << dnew;
 		outputfile << dtab << "~" + classname + "() {" << dnew;
 		outputfile << dtab << "}" << dnew;
+		wk_NAME = "";
+		for (int l = 0;l < IndexColumns.size();l++){
+			idx = IndexColumns[l];
+			if (idx.CONSTRAINT_NAME != wk_NAME){
+				outputfile  << dtab << "std::string Get_SELECT_" << idx.CONSTRAINT_NAME <<
+					"(){"  << dnew;
+				outputfile << dtab << dtab << "return"	<< dtab << "m_strSql + m_str" + idx.CONSTRAINT_NAME << ";" <<dnew;
+				outputfile << dtab << "}" << dnew;
+				wk_NAME = idx.CONSTRAINT_NAME;
+			}
+		}
 		outputfile << "};" << dnew;
 		outputfile << dnew;
 	}
