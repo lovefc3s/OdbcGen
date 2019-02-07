@@ -4,6 +4,38 @@
 #include <sqlext.h>
 #define RESULT_LEN  2048
 
+//Sqlで使用される型
+enum	eSqlType {
+	_unknown		= -1,
+	_bit			= 0, 
+	_tinyint		= 1,
+	_smallint		= 2,
+	_int			= 3,
+	_bigint			= 4,
+	_decimal		= 5,
+	_numeric		= 6,
+	_real			= 7,
+	_float			= 8,
+	_smallmoney		= 9,
+	_money			= 10,
+	_date			= 11,
+	_time			= 12,
+	_datetime		= 13,
+	_datetime2		= 14,
+	_smalldatetime	= 15,
+	_datetimeoffset	= 16,
+	_char			= 17,
+	_varchar		= 18,
+	_text			= 19,
+	_nchar			= 20,
+	_nvarchar		= 21,
+	_ntext			= 22,
+	_binary			= 23,
+	_verbinary		= 24,
+	_image			= 25,
+	_xml			= 26,
+};
+
 class COdbcsql {
 public:
 	COdbcsql();

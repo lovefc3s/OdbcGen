@@ -1,41 +1,10 @@
 #include "stdafx.h"
+#include "GenWindow.h"
 #define	dtab	"\t"
 #define	dnew	"\n"
 #define	dbsra	"\\"
 #define ddquo	"\""
 using namespace std;
-
-//Sqlで使用される型
-enum	eSqlType {
-	_unknown		= -1,
-	_bit			= 0, 
-	_tinyint		= 1,
-	_smallint		= 2,
-	_int			= 3,
-	_bigint			= 4,
-	_decimal		= 5,
-	_numeric		= 6,
-	_real			= 7,
-	_float			= 8,
-	_smallmoney		= 9,
-	_money			= 10,
-	_date			= 11,
-	_time			= 12,
-	_datetime		= 13,
-	_datetime2		= 14,
-	_smalldatetime	= 15,
-	_datetimeoffset	= 16,
-	_char			= 17,
-	_varchar		= 18,
-	_text			= 19,
-	_nchar			= 20,
-	_nvarchar		= 21,
-	_ntext			= 22,
-	_binary			= 23,
-	_verbinary		= 24,
-	_image			= 25,
-	_xml			= 26,
-};
 
 class R_index {
 public:
@@ -478,6 +447,7 @@ void OutputWhere( string Keyname, std::vector<string> &Columns, std::ofstream &f
 	file << ddquo << ";" << dnew;
 }
 int main(int argc, char** argv) {
+    Gtk::Main kit(argc, argv);
 	//CR_t_kansei *pkansei = new CR_t_kansei();
 	//CT_t_kansei *ptbl	= new CT_t_kansei();
 	//ptbl->m_data.push_back(*pkansei);
@@ -511,6 +481,8 @@ int main(int argc, char** argv) {
 		"image",
 		"xml"
 	};
+	GenWindow window;
+	Gtk::Main::run(window);
 	int i = 0;
 	int len = 256;
 	SQLCHAR	*pchar = nullptr;

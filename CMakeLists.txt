@@ -6,9 +6,11 @@ set(CMAKE_CXX_FLAGS "-std=c++17 -Dname=__SqlServer__")
 add_executable(${projectid}
 	stdafx.h
 	odbcsql.h
-	ootabe.h
+	GenWindow.h
 	odbcsql.cpp
-	main.cpp )
+	GenWindow.cpp
+	main.cpp
+)
 set(CMAKE_MODULE_PATH /home/masamitsu/Documents/src/cotire/CMake)
 include(cotire)
 find_package(PkgConfig REQUIRED)
