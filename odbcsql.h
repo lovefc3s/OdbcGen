@@ -482,4 +482,198 @@ public:
         SQLLEN             crowKeyset,
         SQLUSMALLINT       crowRowset);
 };
+
+class R_index {
+public:
+	R_index(){
+
+	}
+	~R_index(){
+
+	}
+	std::string CONSTRAINT_NAME;
+	std::string TABLE_CATALOG;
+	std::string TABLE_SCHEMA;
+	std::string TABLE_NAME;
+	std::string COLUMN_NAME;
+	SQLINTEGER ORDINAL_POSITION;
+};
+
+class R_table {
+public:
+	R_table(){
+		Initialize();
+	}
+	~R_table(){
+
+	}
+	void Initialize(){
+		TABLE_CATALOG = "";
+		TABLE_SCHEMA = "";
+		TABLE_NAME = "";
+		COLUMN_NAME = "";
+		ORDINAL_POSITION = 0;
+		COLUMN_DEFAULT = "";
+		IS_NULLABLE = "";
+		DATA_TYPE = "";
+		CHARACTER_MAXIMUM_LENGTH = 0;
+		CHARACTER_OCTET_LENGTH = 0;
+		NUMERIC_PRECISION = 0;
+		NUMERIC_SCALE = 0;
+		DATETIME_PRECISION = 0;
+		CHARACTER_SET_NAME = "";
+		COLLATION_NAME = "";
+		m_type = eSqlType::_unknown;
+	}
+	std::string TABLE_CATALOG;
+	std::string TABLE_SCHEMA;
+	std::string TABLE_NAME;
+	std::string COLUMN_NAME;
+	SQLINTEGER ORDINAL_POSITION;
+	std::string COLUMN_DEFAULT;
+	std::string IS_NULLABLE;
+	std::string DATA_TYPE;
+	SQLINTEGER CHARACTER_MAXIMUM_LENGTH;
+	SQLINTEGER CHARACTER_OCTET_LENGTH;
+	SQLINTEGER NUMERIC_PRECISION;
+	SQLINTEGER NUMERIC_SCALE;
+	SQLINTEGER DATETIME_PRECISION;
+	std::string CHARACTER_SET_NAME;
+	std::string COLLATION_NAME;
+	eSqlType m_type;
+};
+class OdbcParameter {
+public:
+	OdbcParameter(const std::type_info& typ,void *value) {
+		m_p = value;
+	}
+	~OdbcParameter(){
+		
+	}
+	std::type_info *m_type;
+	void *m_p;
+};
+class OdbcConnection{
+public:
+	OdbcConnection(){
+		m_psql = new COdbcsql();
+		SQLRETURN retcode;
+		if (m_psql)	{
+			retcode = m_psql->CSQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &m_henv);
+			retcode = m_psql->CSQLSetEnvAttr(m_henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
+			retcode = m_psql->CSQLAllocHandle(SQL_HANDLE_DBC, m_henv, &m_hdbc);
+			// Set login timeout to 5 seconds
+			retcode = m_psql->CSQLSetConnectAttr(m_hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
+		}
+		m_driver = "";
+	}
+	~OdbcConnection(){
+		if (m_psql)		
+			delete m_psql;
+	}
+	COdbcsql * m_psql;
+	std::string Get_Driver(){ return m_driver; }
+	void Set_Driver(std::string driver){ m_driver = driver; }
+	std::string Get_Server() { return m_server; }
+	void Set_Server(std::string server){ m_server = server; }
+	std::string Get_Database() { return m_database; }
+	void Set_Database(std::string database){ m_database = database; }
+	std::string Get_UserID() { return m_user; }
+	void Set_UserID(std::string UserID){ m_user = UserID; }
+	std::string Get_Password() { return m_password; }
+	void Set_Password(std::string Password){ m_password = Password; }
+	SQLRETURN DriverConnect(){
+		SQLCHAR outstr[2048];
+		SQLSMALLINT outstrlen = 2048;
+		std::string connctionstring = Get_ConnectionString();
+		SQLRETURN retcode = m_psql->CSQLDriverConnect(m_hdbc, NULL, (SQLCHAR*)connctionstring.c_str(), SQL_NTS, outstr, sizeof(outstr), &outstrlen, SQL_DRIVER_NOPROMPT);
+		return retcode;
+	}
+	std::string Get_ConnectionString(){
+		std::string ret = 
+			"DRIVER={" + m_driver + 
+			"};SERVER=" + m_server + 
+			";DATABASE=" + m_database + 
+			";UID=" + m_user +
+			";PWD=" + m_password + ";";
+		return ret;
+	}
+	SQLHENV Get_EnvironmentHandle(){ return m_henv; }
+	SQLHDBC Get_ConnectionHandle(){ return m_hdbc; }
+protected:
+	SQLHENV   m_henv  = SQL_NULL_HENV;   // Environment
+	SQLHDBC   m_hdbc  = SQL_NULL_HDBC;   // Connection handle
+	SQLHSTMT  m_hstmt = SQL_NULL_HSTMT;  // Statement handle
+	std::string m_driver;
+	std::string m_server;
+	std::string m_database;
+	std::string m_user;
+	std::string m_password;
+	std::string m_ConnectionString;
+};
+class OdbcCommand {
+public:
+	OdbcCommand(OdbcConnection *pcon){
+		_con = pcon;
+		_sql = _con->m_psql;
+		m_CommandString = "";
+		m_henv = _con->Get_EnvironmentHandle();
+		m_hdbc = _con->Get_ConnectionHandle();
+		_sql->CSQLAllocHandle(SQL_HANDLE_STMT, m_hdbc, &m_hstmt);
+	}
+	~OdbcCommand(){
+		if(m_hstmt != SQL_NULL_HSTMT){
+			_sql->CSQLFreeStmt(m_hstmt,0);
+			m_hstmt = SQL_NULL_HSTMT;
+		}
+	}
+	SQLRETURN SQLBindParameter(
+        SQLUSMALLINT       ipar,
+        SQLSMALLINT        fParamType,
+        SQLSMALLINT        fCType,
+        SQLSMALLINT        fSqlType,
+        SQLULEN            cbColDef,
+        SQLSMALLINT        ibScale,
+        SQLPOINTER         rgbValue,
+        SQLLEN             cbValueMax,
+        SQLLEN 		      *pcbValue){
+		return _sql->CSQLBindParameter(m_hstmt,ipar, fParamType, fCType, fSqlType, cbColDef, ibScale, rgbValue, cbValueMax, pcbValue);
+		}
+
+	SQLRETURN SQLExecuteD(){
+		SQLRETURN ret;
+		ret = _sql->CSQLExecDirect(m_hstmt,	(SQLCHAR*) m_CommandString.c_str(), SQL_NTS);
+		return ret;
+	}
+	SQLRETURN SQLPrepare(){
+		SQLINTEGER length = (SQLINTEGER)m_CommandString.length();
+		SQLRETURN ret =	_sql->CSQLPrepare(m_hstmt,(SQLCHAR*)m_CommandString.c_str(), length );
+		return ret;
+	}
+	SQLRETURN SQLPrepare(std::string command){
+		m_CommandString = command;
+		return this->SQLPrepare();
+	}
+	SQLRETURN SQLExecute(){
+		return _sql->CSQLExecute(m_hstmt);
+	}
+	SQLRETURN SQLExecute(int count, ...){
+		va_list ap;
+		va_start(ap, count);
+		va_end(ap);
+		return _sql->CSQLExecute(m_hstmt);
+	}
+	SQLHSTMT Get_StatementHandle () { return m_hstmt; }
+	// member
+	std::string m_CommandString;
+
+protected:
+	SQLHENV   m_henv  = SQL_NULL_HENV;   // Environment
+	SQLHDBC   m_hdbc  = SQL_NULL_HDBC;   // Connection handle
+	SQLHSTMT  m_hstmt = SQL_NULL_HSTMT;  // Statement handle
+private:
+	COdbcsql	*_sql;
+	OdbcConnection	*_con;
+};
+
 #endif
