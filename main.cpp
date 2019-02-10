@@ -294,20 +294,18 @@ int main(int argc, char** argv) {
 	SQLCHAR	*pchar = nullptr;
 	pchar = new SQLCHAR[len];
 	OdbcConnection *p = new OdbcConnection();
+	/*
 	p->Set_Driver("ODBC Driver 17 for SQL Server");
 	p->Set_Server("localhost");
 	p->Set_Database("ootabe");
 	p->Set_UserID("masamitsu");
 	p->Set_Password("Daiki0620");
 	int ret = (int)p->DriverConnect();
+	*/
 	string con = p->Get_ConnectionString();
 	COdbcsql *_sql = p->m_psql;
 	OdbcCommand	*com = new OdbcCommand(p);
-	/*com->m_CommandString = "SELECT t_kansei.kk_id, t_kansei.kk_ynendo, t_kansei.kk_knendo, t_kansei.kk_syurui, t_kansei.kk_jvflg, t_kansei.kk_jvritsu, t_kansei.kk_ukeoi, "\
-		" t_kansei.kk_kanmin, t_kansei.kk_ken, t_kansei.kk_shi, t_kansei.kk_tiku, t_kansei.kk_kaisi, t_kansei.kk_owari, t_kansei.kk_kingaku, t_kansei.kk_zei, "\
-		" t_kansei.kk_goukei, t_kansei.kk_point, t_kansei.kk_ritsu, t_kansei.kk_key, t_kouji.km_name, t_kouji.km_no "\
-		"FROM t_kansei LEFT OUTER JOIN t_kouji ON t_kansei.kk_id = t_kouji.km_index "\
-		"WHERE t_kansei.kk_key = ?;";*/
+
 	com->m_CommandString = "SELECT TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_CATALOG = '" +
 		p->Get_Database() + "';";
 	SQLHSTMT  _hstmt = com->Get_StatementHandle();

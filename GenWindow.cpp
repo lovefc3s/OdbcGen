@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "GenWindow.h"
 
+using namespace std;
+
 GenWindow::GenWindow() :
 	m_l001(" "),
 	m_l002(" "),
@@ -47,8 +49,25 @@ void GenWindow::on_Close_clicked(){
 
 void GenWindow::on_Ok_clicked(){
 	OdbcConnection *pcon = new OdbcConnection();
-	std::string drivername = "{" + m_driver.get_text() + "}";
-	pcon->Set_Driver(drivername);
+	pcon->Set_Driver(m_driver.get_text());
 	pcon->Set_Server(m_server.get_text());
+	pcon->Set_Database(m_database.get_text());
+	pcon->Set_UserID(m_user.get_text());
+	pcon->Set_Password(m_pass.get_text());
+	SQLRETURN rtn = pcon->DriverConnect();
+	std::string con = pcon->Get_ConnectionString();
+	COdbcsql *_sql = pcon->m_psql;
+	OdbcCommand	*com = new OdbcCommand(pcon);
+	com->m_CommandString = "SELECT TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_CATALOG = '" +
+	pcon->Get_Database() + "';";
+	SQLHSTMT  _hstmt = com->Get_StatementHandle();
+	SQLRETURN retcode = com->SQLExecuteD();
+	SQLCHAR TABLE_CATALOG[256], TABLE_SCHEMA[256], TABLE_NAME[256], TABLE_TYPE[256];
+	retcode = _sql->CSQLBindCol(_hstmt, 1, SQL_C_CHAR, TABLE_CATALOG, 256, 0);
+	retcode = _sql->CSQLBindCol(_hstmt, 2, SQL_C_CHAR, TABLE_SCHEMA, 256, 0);
+	retcode = _sql->CSQLBindCol(_hstmt, 3, SQL_C_CHAR, TABLE_NAME, 256, 0);
+	retcode = _sql->CSQLBindCol(_hstmt, 4, SQL_C_CHAR, TABLE_TYPE, 256, 0);
+	vector<std::string> _tbl;
+	delete com;
 	delete pcon;
 }
