@@ -1,11 +1,33 @@
 #include "stdafx.h"
 #include "GenWindow.h"
-#define	dtab	"\t"
-#define	dnew	"\n"
-#define	dbsra	"\\"
-#define ddquo	"\""
 using namespace std;
 
+bool chk_multiple_startup(const gchar *process_name)
+{
+    FILE *fp;
+    char str[256];
+    int  ncnt;
+
+    ncnt=0;
+    sprintf(str,"ps x | grep %s",process_name);
+    if ((fp=popen(str,"r"))==NULL)
+        return(true);
+    while(1){
+        if(fgets(str,255,fp)==NULL){
+            break;
+        }
+        if (strstr(str,"grep")==NULL)
+            ncnt++;
+        if(feof(fp)){
+            break;
+        }
+    }
+    pclose(fp);
+    if (ncnt>1){
+        return(false);
+    }
+    return(true);
+ }
 
 int member(R_table &rec,std::ofstream &file){
 	int ret = 1;
@@ -254,6 +276,13 @@ void OutputWhere( string Keyname, std::vector<string> &Columns, std::ofstream &f
 }
 int main(int argc, char** argv) {
     Gtk::Main kit(argc, argv);
+    // multiple startup check
+    const gchar *appname = g_get_application_name();
+    if (!chk_multiple_startup(appname)){
+        std::cout << "this application has already been started :"
+                  << appname << std::endl;
+        return 1;
+    }
 	//CR_t_kansei *pkansei = new CR_t_kansei();
 	//CT_t_kansei *ptbl	= new CT_t_kansei();
 	//ptbl->m_data.push_back(*pkansei);
@@ -309,7 +338,7 @@ int main(int argc, char** argv) {
 	com->m_CommandString = "SELECT TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_CATALOG = '" +
 		p->Get_Database() + "';";
 	SQLHSTMT  _hstmt = com->Get_StatementHandle();
-	SQLRETURN retcode = com->SQLExecuteD();
+	SQLRETURN retcode = com->Direct();
 	SQLCHAR TABLE_CATALOG[256], TABLE_SCHEMA[256], TABLE_NAME[256], TABLE_TYPE[256];
 	retcode = _sql->CSQLBindCol(_hstmt, 1, SQL_C_CHAR, TABLE_CATALOG, 256, 0);
 	retcode = _sql->CSQLBindCol(_hstmt, 2, SQL_C_CHAR, TABLE_SCHEMA, 256, 0);
@@ -375,7 +404,7 @@ int main(int argc, char** argv) {
 		SQLCHAR _CHARACTER_SET_NAME[256];
 		SQLCHAR _COLLATION_NAME[256];
 		_hstmt = com->Get_StatementHandle();
-		retcode = com->SQLExecuteD();
+		retcode = com->Direct();
 //		retcode = _sql->CSQLBindCol(_hstmt, 1, SQL_C_CHAR, _TABLE_CATALOG, 128, 0);
 //		retcode = _sql->CSQLBindCol(_hstmt, 2, SQL_C_CHAR, _TABLE_SCHEMA, 128, 0);
 //		retcode = _sql->CSQLBindCol(_hstmt, 3, SQL_C_CHAR, _TABLE_NAME, 128, 0);

@@ -15,14 +15,18 @@ protected:
 	Gtk::Label	m_l005;
 	Gtk::Label	m_l006;
 	Gtk::Label	m_l007;
+	Gtk::Label	m_l008;
 	Gtk::Entry	m_driver;
 	Gtk::Entry	m_server;	
 	Gtk::Entry	m_database;
 	Gtk::Entry	m_user;
 	Gtk::Entry	m_pass;
 	Gtk::HBox	m_hbox;	
+	Gtk::Entry	m_file;
+	Gtk::Button	m_find;
 	Gtk::Button	m_Ok;
 	Gtk::Button	m_Close;
+	void on_find_clicked();
 	void on_Close_clicked();
 	void on_Ok_clicked();
 };

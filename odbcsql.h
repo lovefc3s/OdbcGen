@@ -640,10 +640,14 @@ public:
 		return _sql->CSQLBindParameter(m_hstmt,ipar, fParamType, fCType, fSqlType, cbColDef, ibScale, rgbValue, cbValueMax, pcbValue);
 		}
 
-	SQLRETURN SQLExecuteD(){
+	SQLRETURN Direct(){
 		SQLRETURN ret;
 		ret = _sql->CSQLExecDirect(m_hstmt,	(SQLCHAR*) m_CommandString.c_str(), SQL_NTS);
 		return ret;
+	}
+	SQLRETURN Direct(std::string command){
+		m_CommandString = command;
+		return Direct();
 	}
 	SQLRETURN SQLPrepare(){
 		SQLINTEGER length = (SQLINTEGER)m_CommandString.length();

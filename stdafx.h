@@ -1,5 +1,6 @@
-#ifndef __STDAFX_H__
-#define __STDAFX_H__
+#pragma once
+//#ifndef __STDAFX_H__
+//#define __STDAFX_H__
 #define UNICODE
 #include <iostream>
 #include<fstream>
@@ -21,6 +22,15 @@
 #include <gtkmm/hvpaned.h>
 #include <gtkmm/dialog.h>
 #include <gtkmm/treemodelcolumn.h>
+#include <gtkmm/filechooserdialog.h>
 
 #include "odbcsql.h"
-#endif
+
+#define CONFFILE "OdbcGen.conf"
+
+#define	dtab	"\t"
+#define	dnew	"\n"
+#define	dbsra	"\\"
+#define ddquo	"\""
+
+//#endif
