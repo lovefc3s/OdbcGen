@@ -27,4 +27,9 @@ Driver=/usr/lib/libmaodbc.so
 UsageCount=1
 ```  
 #### 2. 接続先設定
+Driver ODBC for MariaDB		（1で設定したDescriptionの内容）  
+Server 192.168.***.***		（実際のIPアドレス）  
+Database mysql				（データベース名）  
+UserID	root	（ユーザー名）  
+Password *******	(パスワード)
 

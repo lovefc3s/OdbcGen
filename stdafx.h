@@ -26,7 +26,7 @@
 
 #include "odbcsql.h"
 
-#define CONFFILE "OdbcGen.conf"
+#define CONFFILE "_self.conf"
 
 #define	dtab	"\t"
 #define	dnew	"\n"
